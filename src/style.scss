@@ -14,6 +14,11 @@ body {
   display: flex;
   flex-direction: column;
 
+  @media (max-width: 768px) {
+    width: 100vw;
+    height: 100vh;
+  }
+
   .map-window {
     width: 100%;
     height: auto;
@@ -30,6 +35,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 
     .edit {
       width: 24px;
@@ -67,6 +73,14 @@ body {
 
       &:hover {
         background-color: #fc6c6c;
+      }
+    }
+
+    .color-picker {
+      input {
+        border: 0px;
+        padding: 0;
+        height: 30px;
       }
     }
 

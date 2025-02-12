@@ -24,6 +24,9 @@ function App() {
   const [zoom, setZoom] = useState(13);
   const [willClosePoly, setWillClosePoly] = useState(false);
   const [currentPoly, setCurrentPoly] = useState<number | null>(null);
+  const [customColors, setCustomColors] = useState<string[]>([]);
+
+  const [inputColorValue, setInputColorValue] = useState("#0000FF");
 
   const MapEvents = () => {
     const map = useMapEvents({
@@ -108,36 +111,61 @@ function App() {
     setCurrentPoly(null);
   };
 
-  const Polygons = () => {
-    const map = useMap();
+  const Polygons = useMemo(
+    () => () => {
+      const map = useMap();
 
-    // const handler = ;
+      // const handler = ;
 
-    return (
-      <>
-        {createdPoints.length &&
-          createdPoints.map((points, index) => (
-            <Polygon
-              pathOptions={{
-                color: "blue",
-              }}
-              positions={points}
-              eventHandlers={useMemo(
-                () => ({
-                  click(e: any) {
-                    setCurrentPoly(index);
-                    setEditPoints([]);
-                    setEditMode(false);
-                    map.fitBounds(e.target._bounds);
-                  },
-                }),
-                [map]
-              )}
-            ></Polygon>
-          ))}
-      </>
-    );
+      return (
+        <>
+          {createdPoints.length &&
+            createdPoints.map((points, index) => (
+              <Polygon
+                pathOptions={{
+                  color: customColors[index] ? customColors[index] : "blue",
+                }}
+                positions={points}
+                eventHandlers={useMemo(
+                  () => ({
+                    click(e: any) {
+                      setCurrentPoly(index);
+                      setEditPoints([]);
+                      setEditMode(false);
+                      map.fitBounds(e.target._bounds);
+                    },
+                  }),
+                  [map]
+                )}
+              ></Polygon>
+            ))}
+        </>
+      );
+    },
+    [customColors, createdPoints]
+  );
+
+  const changeColor = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+    setInputColorValue(e.target.value);
+    let colorsArray = customColors;
+
+    if (currentPoly !== null) {
+      colorsArray[currentPoly] = e.target.value;
+
+      setCustomColors(colorsArray);
+    }
   };
+
+  useEffect(() => {
+    if (currentPoly !== null && !customColors[currentPoly]) {
+      setInputColorValue("#0000FF");
+    } else {
+      if (currentPoly !== null) {
+        setInputColorValue(customColors[currentPoly]);
+      }
+    }
+  }, [currentPoly]);
 
   return (
     <>
@@ -220,9 +248,21 @@ function App() {
             </div>
           )}
           {currentPoly !== null && (
-            <div className="erase-poly" onClick={() => erasePoint(currentPoly)}>
-              Apagar área
-            </div>
+            <>
+              <div
+                className="erase-poly"
+                onClick={() => erasePoint(currentPoly)}
+              >
+                Apagar área
+              </div>
+              <div className="color-picker">
+                <input
+                  type="color"
+                  value={inputColorValue}
+                  onChange={(e) => changeColor(e)}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
