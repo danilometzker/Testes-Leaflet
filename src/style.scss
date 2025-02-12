@@ -1,0 +1,61 @@
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-wrapper {
+  width: 70vw;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+
+  .map-window {
+    width: 100%;
+    height: auto;
+    flex: 1;
+  }
+
+  &.editor .map-window {
+    cursor: pointer;
+  }
+
+  .map-toolbar {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .edit {
+      width: 24px;
+      height: 24px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+      cursor: pointer;
+
+      &.active {
+        background-color: rgba(255, 255, 255, 0.4) !important;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+    .save,
+    .erase {
+      padding: 4px 8px;
+      background-color: rgba(255, 255, 255, 0.2);
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.4);
+      }
+    }
+  }
+}
