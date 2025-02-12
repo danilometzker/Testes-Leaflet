@@ -56,7 +56,7 @@ function App() {
           }
         }
       },
-      contextmenu: (e) => {
+      contextmenu: (_e) => {
         if (editPoints.length > 0) {
           setEditPoints((currentPoints) => currentPoints.slice(0, -1));
         } else {
@@ -79,7 +79,7 @@ function App() {
         }
         setHoverPoint(new LatLng(e.latlng.lat, e.latlng.lng));
       },
-      zoom: (e) => {
+      zoom: (_e) => {
         if (zoom > map.getZoom()) {
           setCurrentPoly(null);
         }
@@ -102,19 +102,10 @@ function App() {
   };
 
   const erasePoint = (index: number) => {
-    setCreatedPoints((current) => current.filter((latLng, i) => i != index));
+    setCreatedPoints((current) => current.filter((_latLng, i) => i != index));
     setEditPoints([]);
     setEditMode(false);
     setCurrentPoly(null);
-  };
-
-  const LatLngToBounds = (latlng: LatLng[]) => {
-    let bounds: [number, number][] = [];
-    latlng.map((point) => {
-      bounds.push([point.lat, point.lng]);
-    });
-
-    return bounds;
   };
 
   const Polygons = () => {
