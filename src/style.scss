@@ -50,12 +50,29 @@ body {
       }
     }
     .save,
-    .erase {
+    .erase,
+    .erase-poly {
       padding: 4px 8px;
       background-color: rgba(255, 255, 255, 0.2);
       &:hover {
         background-color: rgba(255, 255, 255, 0.4);
       }
+    }
+
+    .erase-poly {
+      background-color: #f03a3a;
+      color: #363636;
+      transition: 0.2s;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #fc6c6c;
+      }
+    }
+
+    .current-location {
+      font-family: monospace;
+      width: 160px;
     }
   }
 }

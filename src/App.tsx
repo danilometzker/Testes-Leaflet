@@ -4,14 +4,12 @@ import {
   MapContainer,
   Polygon,
   Polyline,
-  Popup,
   TileLayer,
-  Tooltip,
-  useMapEvent,
+  useMap,
   useMapEvents,
 } from "react-leaflet";
 import "./leaflet.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Pencil from "./assets/pencil.svg";
 import { getDistance } from "./functions";
 
@@ -25,6 +23,7 @@ function App() {
   const [hoverPoint, setHoverPoint] = useState<LatLng | null>(null);
   const [zoom, setZoom] = useState(13);
   const [willClosePoly, setWillClosePoly] = useState(false);
+  const [currentPoly, setCurrentPoly] = useState<number | null>(null);
 
   const MapEvents = () => {
     const map = useMapEvents({
@@ -42,10 +41,7 @@ function App() {
               e.latlng.lng,
               editPoints[0].lat,
               editPoints[0].lng
-            ) *
-              zoom *
-              0.01 <
-              0.05
+            ) < 0.03
           ) {
             setCreatedPoints((current) => [
               ...current,
@@ -53,21 +49,6 @@ function App() {
             ]);
             setEditPoints([]);
           } else {
-            if (editPoints.length > 1) {
-              console.log(
-                "zoom:",
-                zoom,
-                "distancia:",
-                getDistance(
-                  e.latlng.lat,
-                  e.latlng.lng,
-                  editPoints[0].lat,
-                  editPoints[0].lng
-                ) *
-                  zoom *
-                  0.01
-              );
-            }
             setEditPoints((currentPoints) => [
               ...currentPoints,
               new LatLng(e.latlng.lat, e.latlng.lng),
@@ -78,6 +59,8 @@ function App() {
       contextmenu: (e) => {
         if (editPoints.length > 0) {
           setEditPoints((currentPoints) => currentPoints.slice(0, -1));
+        } else {
+          setEditMode(false);
         }
       },
       mousemove: (e) => {
@@ -88,10 +71,7 @@ function App() {
             e.latlng.lng,
             editPoints[0].lat,
             editPoints[0].lng
-          ) *
-            zoom *
-            0.01 <
-            0.05
+          ) < 0.03
         ) {
           setWillClosePoly(true);
         } else {
@@ -100,6 +80,9 @@ function App() {
         setHoverPoint(new LatLng(e.latlng.lat, e.latlng.lng));
       },
       zoom: (e) => {
+        if (zoom > map.getZoom()) {
+          setCurrentPoly(null);
+        }
         setZoom(map.getZoom());
       },
     });
@@ -122,6 +105,47 @@ function App() {
     setCreatedPoints((current) => current.filter((latLng, i) => i != index));
     setEditPoints([]);
     setEditMode(false);
+    setCurrentPoly(null);
+  };
+
+  const LatLngToBounds = (latlng: LatLng[]) => {
+    let bounds: [number, number][] = [];
+    latlng.map((point) => {
+      bounds.push([point.lat, point.lng]);
+    });
+
+    return bounds;
+  };
+
+  const Polygons = () => {
+    const map = useMap();
+
+    // const handler = ;
+
+    return (
+      <>
+        {createdPoints.length &&
+          createdPoints.map((points, index) => (
+            <Polygon
+              pathOptions={{
+                color: "blue",
+              }}
+              positions={points}
+              eventHandlers={useMemo(
+                () => ({
+                  click(e: any) {
+                    setCurrentPoly(index);
+                    setEditPoints([]);
+                    setEditMode(false);
+                    map.fitBounds(e.target._bounds);
+                  },
+                }),
+                [map]
+              )}
+            ></Polygon>
+          ))}
+      </>
+    );
   };
 
   return (
@@ -132,9 +156,10 @@ function App() {
           zoom={zoom}
           scrollWheelZoom={true}
           className="map-window"
+          attributionControl={false}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            // attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
           {editMode && (
@@ -149,27 +174,7 @@ function App() {
               }
             />
           )}
-          {createdPoints.length &&
-            createdPoints.map((points, index) => (
-              <Polygon
-                pathOptions={{
-                  color: "blue",
-                }}
-                positions={points}
-              >
-                <Popup>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      erasePoint(index);
-                    }}
-                  >
-                    Apagar
-                  </a>
-                </Popup>
-              </Polygon>
-            ))}
+          <Polygons />
           <MapEvents />
         </MapContainer>
         <div className="map-toolbar">
@@ -197,7 +202,18 @@ function App() {
             </>
           )}
           <div className="current-location">
-            <span>{`X: ${currentPosition.lat} / Y: ${currentPosition.lng}`}</span>
+            {hoverPoint ? (
+              <span>{`X: ${hoverPoint.lat}`}</span>
+            ) : (
+              <span>{`X: ${currentPosition.lat}`}</span>
+            )}
+          </div>
+          <div className="current-location">
+            {hoverPoint ? (
+              <span>{`Y: ${hoverPoint.lng}`}</span>
+            ) : (
+              <span>{`Y: ${currentPosition.lng}`}</span>
+            )}
           </div>
           {editPoints.length > 2 && hoverPoint != null && (
             <div className="distance">
@@ -210,6 +226,11 @@ function App() {
               ) *
                 zoom +
                 zoom * 0.5}
+            </div>
+          )}
+          {currentPoly !== null && (
+            <div className="erase-poly" onClick={() => erasePoint(currentPoly)}>
+              Apagar área
             </div>
           )}
         </div>
