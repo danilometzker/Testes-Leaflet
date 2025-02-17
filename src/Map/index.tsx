@@ -157,7 +157,10 @@ function Map() {
                       setCurrentPoly(item.id);
                       setEditPoints([]);
                       setEditMode(false);
-                      map.fitBounds(e.target._bounds);
+                      map.setZoom(13);
+                      setTimeout(function () {
+                        map.fitBounds(e.target._bounds);
+                      }, 400);
                     },
                   }),
                   [map]
@@ -229,6 +232,10 @@ function Map() {
         <AreaDrawer
           area={currentPolyDrawer}
           onClose={() => {
+            setCurrentPolyDrawer(null);
+          }}
+          onDelete={() => {
+            setCurrentPoly(null);
             setCurrentPolyDrawer(null);
           }}
         />

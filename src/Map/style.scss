@@ -40,3 +40,12 @@
     }
   }
 }
+
+.delete-button {
+  background-color: #f03e3e;
+  width: 100%;
+
+  &:hover {
+    background-color: #ff6e6e !important;
+  }
+}

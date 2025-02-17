@@ -1,4 +1,13 @@
-import { Button, ColorPicker, Drawer, Form, FormProps, Input } from "antd";
+import {
+  Button,
+  ColorPicker,
+  Divider,
+  Drawer,
+  Form,
+  FormProps,
+  Input,
+  Popconfirm,
+} from "antd";
 import { useEffect, useState } from "react";
 import { AreaData } from ".";
 import { AggregationColor } from "antd/es/color-picker/color";
@@ -6,6 +15,7 @@ import { AggregationColor } from "antd/es/color-picker/color";
 type AreaDrawerProps = {
   area: string | null;
   onClose: () => void;
+  onDelete: () => void;
 };
 
 type FieldType = {
@@ -14,7 +24,7 @@ type FieldType = {
   remember?: string;
 };
 
-function AreaDrawer({ area, onClose }: AreaDrawerProps) {
+function AreaDrawer({ area, onClose, onDelete }: AreaDrawerProps) {
   const [data, setData] = useState<AreaData | null>(null);
 
   const areas: AreaData[] = JSON.parse(localStorage.getItem("areas") || "[]");
@@ -49,6 +59,15 @@ function AreaDrawer({ area, onClose }: AreaDrawerProps) {
     errorInfo
   ) => {
     console.log("Failed:", errorInfo);
+  };
+
+  const deleteArea = () => {
+    if (data) {
+      let newAreas = areas.filter((item) => item.id !== data.id);
+      localStorage.setItem("areas", JSON.stringify(newAreas));
+      onCloseDrawer();
+      onDelete();
+    }
   };
 
   return (
@@ -86,10 +105,24 @@ function AreaDrawer({ area, onClose }: AreaDrawerProps) {
           </Form.Item>
 
           <Form.Item label={null}>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
               Salvar
             </Button>
           </Form.Item>
+
+          <Divider orientation="center"></Divider>
+          <Popconfirm
+            title="Apagar área"
+            description="Tem certeza que deseja apagar essa área?"
+            onConfirm={deleteArea}
+            onCancel={() => {}}
+            okText="Sim"
+            cancelText="Não"
+          >
+            <Button danger style={{ width: "100%" }}>
+              Apagar área
+            </Button>
+          </Popconfirm>
         </Form>
       )}
     </Drawer>
