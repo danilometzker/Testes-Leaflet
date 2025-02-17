@@ -118,6 +118,7 @@ function AreaDrawer({ area, onClose, onDelete }: AreaDrawerProps) {
             onCancel={() => {}}
             okText="Sim"
             cancelText="Não"
+            placement="bottom"
           >
             <Button danger style={{ width: "100%" }}>
               Apagar área
